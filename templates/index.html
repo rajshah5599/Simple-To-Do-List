@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple To Do List</title>
+    <link rel="stylesheet" href="../static/css/styles.css" />
+    <link rel="stylesheet" href="../static/css/slick.css" />
+    <link rel="stylesheet" href="../static/css/slick-theme.css" />
+    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css" />
+</head>
+
+<body>
+    <form action="/process" method="post" oninput="updateUserField()">
+        <label id="user-label" for="user"> Enter Title:</label>
+        <input type="text" name="user" id="user-input" required>
+        <br>
+        <label id="text-label" for="text">Enter Description:</label>
+        <textarea name="text" id="text" rows="4" cols="50" required></textarea>
+        <br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <div class="list-container">
+        <ul id="all-data-list">
+            {% for file_info in file_contents %}
+            <li>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="file-name">{{ file_info.file_name }}</span>
+                        <button class="delete-button" onclick="deleteItem('{{ file_info.file_name }}')">Delete</button>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ file_info.user }}</h5>
+                        <p class="card-text"> {{ file_info.content }}</p>
+
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script src="../static/js/jquery-3.6.4.min.js"></script>
+    <script src="../static/js/slick.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.swipeable-list').slick({
+                infinite: true,
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                autoplay: false,
+                prevArrow: '',
+                nextArrow: '',
+            });
+        });
+
+        function updateUserField() {
+            var textInput = document.getElementById('text');
+            var userLabel = document.getElementById('user-label');
+            var userInput = document.getElementById('user-input');
+
+            // Check if the text input is not empty
+            if (userInput.value.trim() !== '') {
+                // Display the User Identifier label and input
+                textInput.style.display = 'block';
+            } else {
+                // Hide the User Identifier label and input
+                textInput.style.display = 'none';
+            }
+        }
+
+        function deleteItem(fileName) {
+            // Send a request to the server to delete the file
+            $.ajax({
+                url: '/deleteFile',
+                method: 'POST',
+                data: { file_name: fileName },
+                success: function (response) {
+                    // Refresh the page to update the file list
+                    location.reload();
+                },
+                error: function (error) {
+                    console.error('Error deleting file:', error);
+                    // Handle error
+                }
+            });
+        }
+
+
+    </script>
+</body>
+
+</html>
